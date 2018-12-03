@@ -34,9 +34,6 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         getCurrencyData(url: firstURL)
     }
 
-    
-    //TODO: Place your 3 UIPickerView delegate methods here
-    
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -88,6 +85,8 @@ class ViewController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
         
         if let currency = json["ask"].double {
             bitcoinPriceLabel.text = "\(currencySymbolArray[currentRow]) \(currency)"
+        } else {
+            bitcoinPriceLabel.text = "Price Unavailable"
         }
         
     }
