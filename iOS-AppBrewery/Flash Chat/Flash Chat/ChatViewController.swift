@@ -9,10 +9,14 @@
 import UIKit
 import Firebase
 
-class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ChatViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
     
     // Declare instance variables here
-
+    var keyboardHeight: CGFloat = 0.0 {
+        didSet {
+            print("new keyboardHeight: \(keyboardHeight)")
+        }
+    }
     
     // We've pre-linked the IBOutlets
     @IBOutlet var heightConstraint: NSLayoutConstraint!
@@ -32,7 +36,7 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         
         //TODO: Set yourself as the delegate of the text field here:
 
-        
+        messageTextfield.delegate = self
         
         //TODO: Set the tapGesture here:
         
@@ -42,6 +46,45 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
         messageTableView.register(UINib(nibName: "MessageCell", bundle: nil), forCellReuseIdentifier: "customMessageCell")
         
         configureTableView()
+        setupKeyboardObserver()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    private func setupKeyboardObserver() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            keyboardHeight = keyboardSize.height
+            
+            if let keyboardAnimationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) {
+                print("keybaord Animation Duration: \(keyboardAnimationDuration)")
+
+                UIView.animate(withDuration: keyboardAnimationDuration) {
+                    self.heightConstraint.constant = self.keyboardHeight + 15
+                    self.view.layoutIfNeeded()
+                }
+            }
+        }
+
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        
+        if let keyboardAnimationDuration = (notification.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double) {
+            print("keybaord Animation Duration: \(keyboardAnimationDuration)")
+
+            UIView.animate(withDuration: keyboardAnimationDuration) {
+                self.heightConstraint.constant = 50
+                self.view.layoutIfNeeded()
+            }
+        }
         
     }
 
@@ -90,12 +133,21 @@ class ChatViewController: UIViewController, UITableViewDelegate, UITableViewData
     
     //TODO: Declare textFieldDidBeginEditing here:
     
-    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        print("textFieldDidBeginEditing")
+//        UIView.animate(withDuration: 0.25) {
+//            print("keyboard Height: \(self.keyboardHeight)")
+//            self.heightConstraint.constant = 335 + 15
+//            self.view.layoutIfNeeded()
+//        }
+    }
     
     
     //TODO: Declare textFieldDidEndEditing here:
     
-
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        
+    }
     
     ///////////////////////////////////////////
     
